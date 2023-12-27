@@ -1,0 +1,122 @@
+-- Create Departments table
+CREATE TABLE Departments (
+    DepartmentID INT PRIMARY KEY,
+    DepartmentName VARCHAR(100)
+);
+
+-- Create Courses table
+CREATE TABLE Courses (
+    CourseID INT PRIMARY KEY,
+    CourseName VARCHAR(100),
+    Credits INT,
+    DepartmentID INT,
+    FOREIGN KEY (DepartmentID) REFERENCES Departments(DepartmentID)
+);
+
+-- Create Teachers table
+CREATE TABLE Teachers (
+    TeacherID INT PRIMARY KEY,
+    Name VARCHAR(100),
+    DepartmentID INT,
+    FOREIGN KEY (DepartmentID) REFERENCES Departments(DepartmentID)
+);
+
+-- Create Students table
+CREATE TABLE Students (
+    StudentID INT PRIMARY KEY,
+    Name VARCHAR(100),
+    DateOfBirth DATE,
+    GradeLevel VARCHAR(20)
+);
+
+-- Create Enrollments table
+CREATE TABLE Enrollments (
+    EnrollmentID INT PRIMARY KEY,
+    StudentID INT,
+    CourseID INT,
+    FOREIGN KEY (StudentID) REFERENCES Students(StudentID),
+    FOREIGN KEY (CourseID) REFERENCES Courses(CourseID)
+);
+
+
+-- Insert sample data into Departments table
+INSERT INTO Departments (DepartmentID, DepartmentName)
+VALUES
+    (1, 'IT Dept'),
+    (2, 'COMSCIE Dept'),
+    (3, 'ITM DEPT');
+
+
+-- Insert sample data into Courses table with DepartmentID
+INSERT INTO Courses (CourseID, CourseName, Credits, DepartmentID)
+VALUES
+    (101, 'BSIT', 4, 1),
+    (102, 'BSCOMSCIE', 3, 2),
+    (103, 'BSITM', 3, 3);
+
+-- Insert sample data into Teachers table with DepartmentID
+INSERT INTO Teachers (TeacherID, Name, DepartmentID)
+VALUES
+    (1, 'John Doe', 1),
+    (2, 'Jane Smith', 2),
+    (3, 'Alex Johnson', 3);
+
+-- Insert sample data into Students table with GradeLevel as VARCHAR
+INSERT INTO Students (StudentID, Name, DateOfBirth, GradeLevel)
+VALUES
+    (1, 'Romark Cacho', '2010-06-15', '4th year'),
+    (2, 'Jane Smith', '2011-09-22', '2nd year'),
+    (3, 'Alex Johnson', '2006-03-10', '3rd year');
+
+-- Insert sample data into Enrollments table
+INSERT INTO Enrollments (EnrollmentID, StudentID, CourseID)
+VALUES
+    (1, 1, 101),
+    (2, 1, 102),
+    (3, 2, 101),
+    (4, 3, 103),
+    (5, 3, 102);
+
+-- Retrieve all students enrolled in a specific course (e.g., 'BSIT')
+SELECT Students.*
+FROM Students
+JOIN Enrollments ON Students.StudentID = Enrollments.StudentID
+JOIN Courses ON Enrollments.CourseID = Courses.CourseID
+WHERE Courses.CourseName = 'BSIT';
+
+-- Find the total number of credits taken by each student
+SELECT Students.StudentID, Students.Name, SUM(Courses.Credits) AS TotalCredits
+FROM Students
+JOIN Enrollments ON Students.StudentID = Enrollments.StudentID
+JOIN Courses ON Enrollments.CourseID = Courses.CourseID
+GROUP BY Students.StudentID, Students.Name;
+
+-- List all courses along with the number of enrolled students
+SELECT Courses.CourseName, COUNT(Enrollments.StudentID) AS NumEnrolledStudents
+FROM Courses
+LEFT JOIN Enrollments ON Courses.CourseID = Enrollments.CourseID
+GROUP BY Courses.CourseName;
+
+
+-- Query to join Courses, Departments, and Teachers
+SELECT 
+    Courses.CourseName,
+    Departments.DepartmentName,
+    Teachers.Name AS Teacher
+FROM Courses
+JOIN Departments ON Courses.DepartmentID = Departments.DepartmentID
+JOIN Teachers ON Courses.DepartmentID = Teachers.DepartmentID;
+
+-- Query to list courses along with their department names
+SELECT 
+    Courses.CourseName,
+    Departments.DepartmentName
+FROM Courses
+JOIN Departments ON Courses.DepartmentID = Departments.DepartmentID;
+
+-- Query to list teachers with their associated department names
+SELECT 
+    Teachers.Name AS Teacher,
+    Departments.DepartmentName
+FROM Teachers
+JOIN Departments ON Teachers.DepartmentID = Departments.DepartmentID;
